@@ -15,3 +15,8 @@ env/
 
 # OS Junk
 .DS_Store
+
+# Ignore all log files
+*.log
+log/
+logs/
