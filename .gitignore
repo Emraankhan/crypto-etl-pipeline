@@ -1,0 +1,17 @@
+# Security (NEVER upload passwords)
+.env
+
+# Python compilation files (Junk)
+__pycache__/
+*.pyc
+
+# Virtual Environment (Heavy folders)
+venv/
+env/
+
+# Editor settings (Personal preferences)
+.vscode/
+.idea/
+
+# OS Junk
+.DS_Store

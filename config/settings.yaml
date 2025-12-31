@@ -1,0 +1,8 @@
+api:
+  url: "https://api.coingecko.com/api/v3/simple/price"
+  coins: "bitcoin,ethereum,solana"  # We can easily add more coins here later
+  currencies: "usd,eur"
+
+file_paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
