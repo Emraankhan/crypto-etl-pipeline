@@ -45,7 +45,7 @@ cd crypto-etl-pipeline
 pip install -r requirements.txt
 
 
-3. Configuration
+### 3. Configuration
 Create a .env file in the root directory (This file is ignored by Git for security):
 
 DB_USER=user
@@ -55,13 +55,13 @@ DB_PORT=5433
 DB_NAME=crypto_db
 
 
-4. Start the Infrastructure
+### 4. Start the Infrastructure
 Launch the PostgreSQL database container:
 
 docker-compose up -d
 
 
-5. Run the Pipeline
+### 5. Run the Pipeline
 Start the automated ETL job (Press Ctrl+C to stop):
 
 python main.py
@@ -69,7 +69,7 @@ python main.py
 The script will run continuously, fetching data every minute.
 
 
-6. Generate Reports
+### 6. Generate Reports
 To view current market insights and volatility analysis:
 
 python analytics.py
@@ -95,3 +95,7 @@ Analytics Report (python analytics.py):
     coin_id  min_price  max_price  price_swing
 0   bitcoin   87200.00   87848.00       648.00
 
+### 7. Launch the Dashboard 📈
+To visualize the data in a real-time interactive chart:
+```bash
+python -m streamlit run dashboard.py
