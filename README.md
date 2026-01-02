@@ -1,5 +1,9 @@
 # 🚀 Serverless Crypto ETL Pipeline
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://crypto-etl-pipeline.streamlit.app/)
+
+**Live Dashboard:** [https://crypto-etl-pipeline.streamlit.app/](https://crypto-etl-pipeline.streamlit.app/)
+
 ## 📖 Overview
 This project is a fully automated, serverless data pipeline that extracts cryptocurrency data, stores it in a Cloud Database, and visualizes it on a live Dashboard.
 
@@ -38,6 +42,7 @@ The pipeline follows a modern Extract, Transform, Load (ETL) workflow:
 ├── requirements.txt     # Python dependencies
 └── README.md            # Project Documentation
 
+
 🚀 How to Run Locally (Dashboard)
 To view the live dashboard on your local machine:
 
@@ -56,7 +61,7 @@ DB_USER=postgres
 DB_PASSWORD=your_password
 DB_PORT=5432
 
-4. Launch Dashboard:
+### 4. Launch Dashboard:
 python -m streamlit run dashboard.py
 
 
