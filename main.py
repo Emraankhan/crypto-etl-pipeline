@@ -1,65 +1,47 @@
-import time
-import schedule
 import logging
 import sys
 import os
-from src.extract import extract_data
-from src.transform import transform_data
-from src.load import load_data_to_db
+from src.extract import fetch_crypto_data
+from src.transform import process_crypto_data
+from src.db_connector import load_data_to_db
 
-# --- DEBUGGING: WHERE IS THE FILE? ---
-log_file_path = os.path.abspath("pipeline.log")
-print(f"🔎 DEBUG: Log file is being saved here: {log_file_path}")
-
-# --- CONFIGURATION: LOGGING ---
-# We use force=True to reset any old loggers
-# We use encoding='utf-8' for emoji safety
+# Configure Logging (Cloud Safe Version)
+# We ONLY write to sys.stdout (The Screen), not to a file.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler("pipeline.log", encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ],
-    force=True 
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
+logger = logging.getLogger(__name__)
 
-def job():
-    """
-    The main ETL function.
-    """
-    logging.info("--- [START] Starting ETL Job ---")
-    
+def run_etl():
+    """The core logic of our pipeline"""
+    logger.info("--- [START] Starting ETL Job ---")
     try:
-        # Step 1: Extract
-        raw_data = extract_data()
+        # 1. Extract
+        raw_data = fetch_crypto_data()
+        if not raw_data:
+            logger.warning("No data extracted. Skipping job.")
+            return {"statusCode": 200, "body": "No Data"}
+            
+        # 2. Transform
+        df_transformed = process_crypto_data(raw_data)
         
-        # Step 2: Transform
-        if raw_data:
-            clean_df = transform_data(raw_data)
-            
-            # Step 3: Load
-            if clean_df is not None:
-                load_data_to_db(clean_df)
-                logging.info("[SUCCESS] ETL Job Completed Successfully.")
-            else:
-                logging.warning("[WARN] Transformation failed, skipping load.")
-        else:
-            logging.warning("[WARN] No data extracted, skipping pipeline.")
-            
+        # 3. Load
+        load_data_to_db(df_transformed)
+        
+        logger.info("[SUCCESS] ETL Job Completed Successfully.")
+        return {"statusCode": 200, "body": "Success"}
+        
     except Exception as e:
-        logging.error(f"[ERROR] Critical Pipeline Error: {e}")
+        logger.error(f"ETL Job Failed: {e}")
+        # In Lambda, we don't want to crash the whole bot, just report the error
+        return {"statusCode": 500, "body": str(e)}
 
-# --- IMMEDIATE TEST ---
-# We write a test log right now to prove it works
-logging.info("📝 TEST LOG: If you can see this in the file, logging is fixed!")
+# --- AWS LAMBDA HANDLER ---
+def lambda_handler(event, context):
+    return run_etl()
 
-# --- SCHEDULING ---
-job()
-schedule.every(1).minutes.do(job)
-
-logging.info("[WAIT] Pipeline scheduler started. Waiting for next job...")
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# --- LOCAL RUN ---
+if __name__ == "__main__":
+    run_etl()

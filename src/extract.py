@@ -1,51 +1,27 @@
 import requests
-import yaml
-import os
-import sys
+import logging
 
-# Load Configuration securely
-def load_config():
-    # Gets the absolute path of the project root to find the config file reliably
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(current_dir)
-    config_path = os.path.join(project_root, 'config', 'settings.yaml')
-    
-    try:
-        with open(config_path, 'r') as file:
-            return yaml.safe_load(file)
-    except FileNotFoundError:
-        print(f"Error: Config file not found at {config_path}")
-        sys.exit(1)
-
-def extract_data():
+def fetch_crypto_data():
     """
-    Fetches data from the CoinGecko API based on settings.yaml.
-    Returns: JSON data (dictionary) or None if failed.
+    Fetches the top 50 cryptocurrencies from CoinGecko API.
     """
-    config = load_config()
-    url = config['api']['url']
-    
-    # Parameters for the API call
+    url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
-        "ids": config['api']['coins'],
-        "vs_currencies": config['api']['currencies'],
-        "include_last_updated_at": "true"
+        "vs_currency": "usd",
+        "order": "market_cap_desc",
+        "per_page": 50,
+        "page": 1,
+        "sparkline": "false"
     }
-
+    
     try:
-        print(f"Connecting to {url}...")
-        response = requests.get(url, params=params, timeout=10) # 10 second timeout
-        response.raise_for_status() # Raises error for 404, 500, etc.
-        
+        print("Fetching data from API...")
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status() # Check for errors (404, 500)
         data = response.json()
-        print("✅ Data extraction successful!")
+        print(f"Successfully fetched {len(data)} records.")
         return data
-
-    except requests.exceptions.RequestException as e:
-        print(f"❌ API Request failed: {e}")
-        return None
-
-# This allows us to test this script individually
-if __name__ == "__main__":
-    raw_data = extract_data()
-    print(raw_data)
+        
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return []
